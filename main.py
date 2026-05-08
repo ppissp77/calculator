@@ -1,100 +1,149 @@
+# main.py
+
 import streamlit as st
-import math
+import pandas as pd
+import plotly.express as px
+import random
 
-st.set_page_config(page_title="다기능 계산기", page_icon="🧮")
-
-st.title("🧮 다기능 계산기")
-st.write("연산을 먼저 선택하면 필요한 값을 입력할 수 있습니다.")
-
-# -----------------------------
-# 1️⃣ 연산 선택
-# -----------------------------
-operation = st.selectbox(
-    "연산 종류 선택",
-    [
-        "덧셈",
-        "뺄셈",
-        "곱셈",
-        "나눗셈",
-        "모듈러 연산 (%)",
-        "지수 연산 (거듭제곱)",
-        "로그 연산"
-    ]
+# -----------------------------------
+# 기본 설정
+# -----------------------------------
+st.set_page_config(
+    page_title="다기능 웹앱",
+    page_icon="🧮",
+    layout="wide"
 )
 
-st.divider()
+# -----------------------------------
+# 사이드바
+# -----------------------------------
+st.sidebar.title("📌 메뉴")
 
-# -----------------------------
-# 2️⃣ 연산별 입력 UI
-# -----------------------------
+page = st.sidebar.radio(
+    "앱 선택",
+    ["계산기", "확률 시뮬레이터"]
+)
 
-try:
-    # 덧셈
+# =====================================================
+# 계산기 페이지
+# =====================================================
+if page == "계산기":
+
+    st.title("🧮 계산기")
+
+    operation = st.selectbox(
+        "연산 종류를 선택하세요",
+        ["덧셈", "뺄셈", "곱셈", "나눗셈"]
+    )
+
+    # 연산별 입력 UI
     if operation == "덧셈":
-        a = st.number_input("첫 번째 숫자")
-        b = st.number_input("두 번째 숫자")
+        num1 = st.number_input("첫 번째 숫자", value=0.0)
+        num2 = st.number_input("두 번째 숫자", value=0.0)
+        result = num1 + num2
 
-        if st.button("계산"):
-            st.success(f"결과: {a + b}")
-
-    # 뺄셈
     elif operation == "뺄셈":
-        a = st.number_input("첫 번째 숫자")
-        b = st.number_input("두 번째 숫자")
+        num1 = st.number_input("빼지는 수", value=0.0)
+        num2 = st.number_input("빼는 수", value=0.0)
+        result = num1 - num2
 
-        if st.button("계산"):
-            st.success(f"결과: {a - b}")
-
-    # 곱셈
     elif operation == "곱셈":
-        a = st.number_input("첫 번째 숫자")
-        b = st.number_input("두 번째 숫자")
+        num1 = st.number_input("첫 번째 숫자", value=0.0)
+        num2 = st.number_input("두 번째 숫자", value=0.0)
+        result = num1 * num2
 
-        if st.button("계산"):
-            st.success(f"결과: {a * b}")
-
-    # 나눗셈
     elif operation == "나눗셈":
-        a = st.number_input("나누어지는 수 (피제수)")
-        b = st.number_input("나누는 수 (제수)")
+        num1 = st.number_input("나누어지는 수", value=0.0)
+        num2 = st.number_input("나누는 수", value=1.0)
 
-        if st.button("계산"):
-            if b == 0:
-                st.error("❌ 0으로 나눌 수 없습니다.")
-            else:
-                st.success(f"결과: {a / b}")
+        if num2 != 0:
+            result = num1 / num2
+        else:
+            result = "0으로 나눌 수 없습니다."
 
-    # 모듈러
-    elif operation == "모듈러 연산 (%)":
-        a = st.number_input("나누어지는 수")
-        b = st.number_input("나누는 수")
+    # 계산 버튼
+    if st.button("계산하기"):
+        st.success(f"결과: {result}")
 
-        if st.button("계산"):
-            if b == 0:
-                st.error("❌ 0으로 나눌 수 없습니다.")
-            else:
-                st.success(f"결과: {a % b}")
+# =====================================================
+# 확률 시뮬레이터 페이지
+# =====================================================
+elif page == "확률 시뮬레이터":
 
-    # 지수
-    elif operation == "지수 연산 (거듭제곱)":
-        a = st.number_input("밑 (base)")
-        b = st.number_input("지수 (exponent)")
+    st.title("🎲 확률 시뮬레이터")
 
-        if st.button("계산"):
-            st.success(f"결과: {a ** b}")
+    sim_type = st.selectbox(
+        "시뮬레이션 종류 선택",
+        ["주사위", "동전"]
+    )
 
-    # 로그
-    elif operation == "로그 연산":
-        x = st.number_input("진수 (0보다 커야 함)")
-        base = st.number_input("밑 (0보다 크고 1이 아니어야 함)", value=math.e)
+    trial_count = st.number_input(
+        "시행 횟수 입력",
+        min_value=1,
+        max_value=100000,
+        value=100,
+        step=1
+    )
 
-        if st.button("계산"):
-            if x <= 0:
-                st.error("❌ 진수는 0보다 커야 합니다.")
-            elif base <= 0 or base == 1:
-                st.error("❌ 밑은 0보다 크고 1이 아니어야 합니다.")
-            else:
-                st.success(f"결과: {math.log(x, base)}")
+    if st.button("시뮬레이션 시작"):
 
-except Exception as e:
-    st.error(f"오류 발생: {e}")
+        # -----------------------------------
+        # 주사위 시뮬레이션
+        # -----------------------------------
+        if sim_type == "주사위":
+
+            results = [
+                random.randint(1, 6)
+                for _ in range(trial_count)
+            ]
+
+            counts = (
+                pd.Series(results)
+                .value_counts()
+                .sort_index()
+            )
+
+            df = pd.DataFrame({
+                "주사위 눈": counts.index,
+                "횟수": counts.values
+            })
+
+            fig = px.bar(
+                df,
+                x="주사위 눈",
+                y="횟수",
+                text="횟수",
+                title="주사위 결과 분포"
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.dataframe(df, use_container_width=True)
+
+        # -----------------------------------
+        # 동전 시뮬레이션
+        # -----------------------------------
+        elif sim_type == "동전":
+
+            results = [
+                random.choice(["앞면", "뒷면"])
+                for _ in range(trial_count)
+            ]
+
+            counts = pd.Series(results).value_counts()
+
+            df = pd.DataFrame({
+                "결과": counts.index,
+                "횟수": counts.values
+            })
+
+            fig = px.pie(
+                df,
+                names="결과",
+                values="횟수",
+                title="동전 결과 비율"
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.dataframe(df, use_container_width=True)
